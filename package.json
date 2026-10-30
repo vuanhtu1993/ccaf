@@ -1,0 +1,22 @@
+{
+  "name": "cca-f",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Repo học Claude Certified Architect (Foundations): Claude API / Agent SDK / Claude Code / MCP",
+  "type": "module",
+  "scripts": {
+    "setup": "npm --prefix mcp-server install && npm --prefix agent-sdk install && npm run build",
+    "build": "npm --prefix mcp-server run build && npm --prefix agent-sdk run build",
+    "typecheck": "npm --prefix mcp-server run typecheck && npm --prefix agent-sdk run typecheck",
+    "probe": "npm --prefix mcp-server run probe",
+    "test:hooks": ".claude/hooks/test-hooks.sh",
+    "validate": "node scripts/validate-config.mjs",
+    "check": "npm run typecheck && npm run probe && npm run test:hooks && npm run validate",
+    "agent": "npm --prefix agent-sdk run start",
+    "agent:study": "npm --prefix agent-sdk run start:study",
+    "agent:exam": "npm --prefix agent-sdk run start:exam"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

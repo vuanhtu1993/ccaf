@@ -1,0 +1,25 @@
+{
+  "name": "cca-f-agent-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent SDK orchestrator: agent + subagents + hooks + MCP cho repo CCA-F",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node --env-file-if-exists=../.env dist/orchestrator.js",
+    "start:study": "node --env-file-if-exists=../.env dist/orchestrator.js study",
+    "start:exam": "node --env-file-if-exists=../.env dist/orchestrator.js exam"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.312",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
