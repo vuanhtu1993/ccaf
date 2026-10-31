@@ -54,7 +54,7 @@
 ## 3. Các Bài Lab Thực nghiệm Chứng minh (Hands-on Proofs)
 
 ### 🧪 Lab 4.1: Diễn Tập Tiêm Lỗi Thực Chiến (Failure Injection Drills)
-* **Mục tiêu**: Xử lý 4 bẫy kiến trúc kinh điển được định nghĩa trong [`docs/evaluation-plan.md`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/docs/evaluation-plan.md).
+* **Mục tiêu**: Xử lý 4 bẫy kiến trúc kinh điển được định nghĩa trong [`docs/evaluation-plan.md`](../evaluation-plan.md).
 * **Nhiệm vụ cần vượt qua**:
   1. *Drill 1 (Bẫy Stdout MCP)*: Nhận diện và sửa lỗi `console.log` trong MCP Server.
   2. *Drill 2 (Bẫy Bypass Safety)*: Chuyển một rule text cấm xoá file thành một Hook shell `PreToolUse` trả về `exit 2`.
@@ -74,7 +74,7 @@
      - `agent-design`: 5 câu
      - `claude-code-config`: 5 câu
      - `mcp-integration`: 5 câu
-  3. Báo cáo kết quả sẽ được tự động ghi vào thư mục [`docs/mock-exams/`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/docs/mock-exams/).
+  3. Báo cáo kết quả sẽ được tự động ghi vào thư mục [`docs/mock-exams/`](../mock-exams/).
 
 ---
 
@@ -91,28 +91,42 @@
 ## 5. Câu hỏi Tự vấn Kiến trúc Sư (Architect Self-Check)
 
 1. *Khi nào một hệ thống dùng Prompt Caching với Sonnet lại có chi phí rẻ hơn hoặc tương đương một hệ thống dùng Haiku không cache? Và điều kiện để một prompt block được kích hoạt Cache Read là gì?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Khi hệ thống có system prompt, schema công cụ hoặc tài liệu dài cố định được tái sử dụng liên tục qua nhiều lượt gọi trong vòng 5 phút (TTL). Nhờ chi phí Cache Read chỉ bằng 10% giá input gốc của Sonnet, tổng chi phí tính toán cho các prompt lặp lại có thể rẻ hơn việc gửi toàn bộ nội dung đó cho Haiku mà không cache. Điều kiện kích hoạt: prefix của prompt phải trùng khớp tuyệt đối, đạt dung lượng tối thiểu (1.024 token cho Sonnet) và gọi trong hạn TTL.
+   </details>
+
 2. *Nếu một dự án có 10 subagents cùng chia sẻ chung một MCP server, làm sao để hạn chế subagent A không gọi được tool của subagent B?*
-3. *Quy tắc ưu tiên `deny > defer > ask > allow` giúp giải quyết xung đột như thế nào khi có 2 hook cùng can thiệp vào một tool call?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Khai báo tường minh danh sách công cụ được phép trong trường <code>tools:</code> hoặc chặn công cụ không mong muốn trong trường <code>disallowedTools:</code> tại YAML frontmatter của subagent A (áp dụng nguyên tắc Least Privilege).
+   </details>
+
+3. *Quy tắc ưu tiên `deny > ask > allow` giúp giải quyết xung đột như thế nào khi có 2 hook cùng can thiệp vào một tool call?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Đảm bảo nguyên tắc an toàn cao nhất (Fail-safe): Chỉ cần một hook kích hoạt quyết định <code>deny</code> (hoặc trả về <code>exit 2</code>), thao tác sẽ bị chặn đứng ngay lập tức bất chấp các hook khác trả về <code>allow</code>.
+   </details>
 
 ---
 
 ## 6. Tiêu chuẩn Nghiệm thu Toàn diện (Readiness Sign-off Gate)
 
-Chúc mừng thầy Tú và các bạn học viên! Bạn chính thức đủ điều kiện được ký duyệt **SẴN SÀNG THI CCA-F** khi đạt đủ 4 tiêu chuẩn vàng:
+Chúc mừng bạn học viên! Bạn chính thức đủ điều kiện được ký duyệt **SẴN SÀNG THI CCA-F** khi đạt đủ 4 tiêu chuẩn vàng:
 
-- [x] **1. Automated Checks 100% Xanh**:
+- [ ] **1. Automated Checks 100% Xanh**:
   ```bash
   npm run check
   ```
   *(Toàn bộ 47+ kiểm thử tĩnh, probe, hook tests, và validate config đều PASS không tì vết)*
-- [x] **2. Tri thức Nhất quán 100%**:
+- [ ] **2. Tri thức Nhất quán 100%**:
   `audit_kb` báo cáo tỷ lệ khớp 1:1 giữa Concept và Quiz, không có concept mồ côi.
-- [x] **3. Mock Exam Điểm Cao**:
+- [ ] **3. Mock Exam Điểm Cao**:
   Hoàn thành tối thiểu 2 đề thi 20 câu với kết quả:
   - Điểm tổng thể: $\ge 85\%$
   - Không có Domain nào $< 75\%$
   - Thời gian trung bình: $\le 75$ giây/câu
-- [x] **4. Bản lĩnh Giải trình Kiến trúc**:
+- [ ] **4. Bản lĩnh Giải trình Kiến trúc**:
   Có khả năng giải thích rành mạch "Tại sao" cho bất kỳ luật thiết kế nào trong repo trong vòng 2 câu ngắn gọn.
 
 ---

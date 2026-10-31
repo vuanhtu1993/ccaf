@@ -85,7 +85,7 @@ Trong transport `stdio` (tiến trình con chạy qua terminal):
 ### 🧪 Lab 2.3: Thiết kế Subagent Thu Hẹp Quyền (Least Privilege Subagent)
 * **Mục tiêu**: Cấu hình subagent chỉ có quyền đọc để review kiến trúc an toàn.
 * **Thực hành**:
-  1. Mở file [`.claude/agents/architecture-reviewer.md`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/.claude/agents/architecture-reviewer.md).
+  1. Mở file [`.claude/agents/architecture-reviewer.md`](../../.claude/agents/architecture-reviewer.md).
   2. Quan sát phần header YAML frontmatter:
      ```markdown
      ---
@@ -113,23 +113,37 @@ Trong transport `stdio` (tiến trình con chạy qua terminal):
 ## 5. Câu hỏi Tự vấn Bản chất (Self-reflection Questions)
 
 1. *Tại sao Subagent KHÔNG rẻ hơn và KHÔNG nhanh hơn một Agent đơn lẻ?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Subagent đòi hỏi chi phí token khởi tạo system prompt và ngữ cảnh riêng cho tiến trình con, đồng thời tốn thêm token khi tóm tắt kết quả gửi ngược về Agent cha. Ngoài ra, việc spawn thêm sub-session làm tăng latency so với việc gọi trực tiếp trên cùng một phiên.
+   </details>
+
 2. *Nếu một server MCP có cấu hình `url: "http://localhost:3000"` nhưng thiếu trường `type: "http"`, Claude Code sẽ xử lý như thế nào? (Xem file `scripts/validate-config.mjs`)*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Claude Code mặc định coi server là dạng tiến trình con <code>stdio</code> (yêu cầu trường <code>command</code>). Khi thiếu <code>type: "http"</code>, hệ thống sẽ báo lỗi cấu hình không hợp lệ hoặc cố gắng khởi chạy qua shell thất bại.
+   </details>
+
 3. *Sự khác biệt về mục đích sử dụng giữa MCP Resource và MCP Tool là gì?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   <b>Resource</b> là dữ liệu chỉ đọc (read-only/passive data) do client hoặc người dùng nạp theo URI để bổ sung ngữ cảnh. <b>Tool</b> là hàm có thể thực thi (executable/active functions) có tham số, do mô hình chủ động quyết định gọi để tạo tác động hoặc truy vấn động.
+   </details>
 
 ---
 
 ## 6. Tiêu chuẩn Nghiệm thu Đầu ra Tuần 2 (Weekly Sign-off Gate)
 
 Bạn đã hoàn thành Tuần 2 khi:
-- [x] Hiểu rõ sự phân tách `stdout` và `stderr` trong [`mcp-server/src/index.ts`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/mcp-server/src/index.ts).
-- [x] Lệnh kiểm tra toàn diện MCP server đạt chuẩn 100%:
+- [ ] Hiểu rõ sự phân tách `stdout` và `stderr` trong [`mcp-server/src/index.ts`](../../mcp-server/src/index.ts).
+- [ ] Lệnh kiểm tra toàn diện MCP server đạt chuẩn 100%:
   ```bash
   npm --prefix mcp-server run probe
   ```
   *(Kết quả: `Probe PASS — 16/16 check`)*
-- [x] Cả 4 subagent trong [`.claude/agents/`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/.claude/agents) đều vượt qua bộ kiểm tra cú pháp frontmatter của `npm run validate`.
+- [ ] Cả 4 subagent trong [`.claude/agents/`](../../.claude/agents) đều vượt qua bộ kiểm tra cú pháp frontmatter của `npm run validate`.
 
-👉 **Chuyển sang [Tuần 3: Lập trình Điều khiển & Khung Kiềm tỏa (Agent SDK)](week-3.md)**
+👉 **Chuyển sang [Tuần 3: Lập trình Điều khiển & Khung Kiểm soát (Agent SDK)](week-3.md)**
 
 ---
 *Made by Anh Tu - Share to be share*

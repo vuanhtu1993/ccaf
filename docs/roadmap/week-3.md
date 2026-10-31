@@ -1,4 +1,4 @@
-# Tuần 3: Lập trình Điều khiển & Khung Kiềm tỏa
+# Tuần 3: Lập trình Điều khiển & Khung Kiểm soát (Agent Harnessing)
 *(Week 3: Programmatic Agent Control & Harnessing)*
 
 > **Mục tiêu cốt lõi**: Thấu hiểu bản chất của **Claude Agent SDK** như một thư viện đóng gói toàn bộ vòng lặp của Claude Code; làm chủ khái niệm **Agent Harness** để lập trình hóa các rào chắn an toàn (guardrails), cơ chế xác thực đa nguồn, và thiết lập môi trường thực thi cô lập tuyệt đối (Hermetic Execution) cho CI/CD.
@@ -108,21 +108,35 @@ const options: Options = {
 ## 5. Câu hỏi Tự vấn Bản chất (Self-reflection Questions)
 
 1. *Khi nào bạn BẮT BUỘC phải dùng `settingSources: []` thay vì `settingSources: ['project']`?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Khi chạy kiểm thử tự động (CI/CD pipeline) hoặc dịch vụ backend production cần môi trường thực thi hoàn toàn cô lập (Hermetic Execution). Việc truyền mảng rỗng ngăn chặn việc nạp ngầm các file cấu hình, rules hoặc skills cục bộ từ máy cá nhân lập trình viên.
+   </details>
+
 2. *Trong SDK, nếu hàm callback của `PreToolUse` trả về `{ decision: 'block' }`, chuyện gì sẽ xảy ra với lượt chạy đó của Agent?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Agent sẽ bị chặn đứng không cho gọi tool đó, chu trình tool call lập tức bị huỷ và agent nhận được lý do chặn (trong trường <code>reason</code>) để tự suy luận và đề xuất phương án thay thế an toàn.
+   </details>
+
 3. *Tại sao việc kiểm tra cứng `if (!process.env['ANTHROPIC_API_KEY'])` lại bị coi là một anti-pattern trong file `orchestrator.ts`? (Xem file `scripts/validate-config.mjs`)*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Vì Claude Agent SDK hỗ trợ nhiều nguồn xác thực linh hoạt: Subscription cá nhân qua <code>claude /login</code> (lưu trong Keychain), token OAuth qua <code>CLAUDE_CODE_OAUTH_TOKEN</code>, hoặc qua các Cloud Provider (Bedrock/Vertex). Kiểm tra cứng API key sẽ chặn oan các môi trường đăng nhập hợp lệ khác.
+   </details>
 
 ---
 
 ## 6. Tiêu chuẩn Nghiệm thu Đầu ra Tuần 3 (Weekly Sign-off Gate)
 
 Bạn đã hoàn thành Tuần 3 khi:
-- [x] Hiểu cặn kẽ 5 thành phần kiến trúc trong [`agent-sdk/src/orchestrator.ts`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/agent-sdk/src/orchestrator.ts).
-- [x] Cả hai package đều biên dịch TypeScript không lỗi:
+- [ ] Hiểu cặn kẽ 5 thành phần kiến trúc trong [`agent-sdk/src/orchestrator.ts`](../../agent-sdk/src/orchestrator.ts).
+- [ ] Cả hai package đều biên dịch TypeScript không lỗi:
   ```bash
   npm run typecheck
   ```
   *(Kết quả: `tsc --noEmit` pass cho cả mcp-server và agent-sdk)*
-- [x] Lệnh validate cấu hình xác nhận orchestrator đạt chuẩn an toàn xác thực:
+- [ ] Lệnh validate cấu hình xác nhận orchestrator đạt chuẩn an toàn xác thực:
   ```bash
   npm run validate
   ```

@@ -56,7 +56,7 @@ Hook hoạt động như một tiến trình con (Child Process) giao tiếp qua
 ### 🧪 Lab 1.1: Chứng minh Sự Khác biệt giữa Rule và Hook
 * **Mục tiêu**: Thấy rõ tại sao Rule chỉ là hướng dẫn, còn Hook mới là bảo vệ thật.
 * **Thực hành**:
-  1. Mở file [`.claude/hooks/guard-dangerous.sh`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/.claude/hooks/guard-dangerous.sh).
+  1. Mở file [`.claude/hooks/guard-dangerous.sh`](../../.claude/hooks/guard-dangerous.sh).
   2. Quan sát đoạn script bắt lệnh nguy hiểm:
      ```bash
      if echo "$COMMAND" | grep -Eq '(^|[[:space:]])rm[[:space:]]+-rf[[:space:]]+(/|~)'; then
@@ -73,7 +73,7 @@ Hook hoạt động như một tiến trình con (Child Process) giao tiếp qua
 ### 🧪 Lab 1.2: Tiết kiệm Ngân sách Ngữ cảnh bằng `paths:` Frontmatter
 * **Mục tiêu**: Chứng minh việc chỉ nạp rule khi cần thiết giúp tiết kiệm token.
 * **Thực hành**:
-  1. Mở file [`.claude/rules/typescript.md`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/.claude/rules/typescript.md).
+  1. Mở file [`.claude/rules/typescript.md`](../../.claude/rules/typescript.md).
   2. Quan sát phần header YAML frontmatter:
      ```markdown
      ---
@@ -100,21 +100,35 @@ Hook hoạt động như một tiến trình con (Child Process) giao tiếp qua
 
 Trước khi chuyển sang Tuần 2, hãy tự trả lời ngắn gọn (1-2 câu):
 1. *Tại sao rule có `paths:` lại bắt buộc phải đặt ở thư mục `.claude/rules/` mà không thể đặt trong `CLAUDE.md`?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   <code>CLAUDE.md</code> được nạp toàn bộ vào context ở mọi phiên ngay từ đầu nên không thể áp dụng bộ lọc đường dẫn (path globbing). Thư mục <code>.claude/rules/*.md</code> cho phép Claude Code quét tiêu đề frontmatter và chỉ đọc nội dung rule khi phiên làm việc thực sự chạm vào file khớp với mẫu đường dẫn.
+   </details>
+
 2. *Nếu hook `PreToolUse` in một thông báo lỗi ra `stdout` thay vì `stderr`, điều gì sẽ xảy ra?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   Claude Code coi <code>stdout</code> của hook là kênh nhận JSON object có cấu trúc. Nếu in text thông thường ra <code>stdout</code>, parser sẽ gặp lỗi giải mã JSON hoặc không nhận diện được thông báo lỗi, khiến phản hồi chặn không hiển thị được tới Claude hoặc gây vỡ giao tiếp.
+   </details>
+
 3. *Sự khác nhau cơ bản giữa `exit 0` và `exit 2` trong hợp đồng của Claude Code Hook là gì?*
+   <details>
+   <summary>💡 Gợi ý đáp án kiến trúc</summary>
+   <code>exit 0</code> là mã thành công, cho phép tiếp tục chuỗi thực thi tool. <code>exit 2</code> là mã cưỡng chế chặn đứng (BLOCK) tool call trước khi chạy, đồng thời chuyển toàn bộ thông điệp ở <code>stderr</code> thành lý do chặn gửi cho mô hình.
+   </details>
 
 ---
 
 ## 6. Tiêu chuẩn Nghiệm thu Đầu ra Tuần 1 (Weekly Sign-off Gate)
 
 Bạn đã hoàn thành Tuần 1 khi:
-- [x] Đọc và hiểu toàn bộ mã nguồn của [`.claude/settings.json`](file:///Users/anhtus/Documents/Development/anthropics/CCA-F/.claude/settings.json) và 3 hook scripts.
-- [x] Lệnh kiểm tra hook đạt chuẩn 100%:
+- [ ] Đọc và hiểu toàn bộ mã nguồn của [`.claude/settings.json`](../../.claude/settings.json) và 3 hook scripts.
+- [ ] Lệnh kiểm tra hook đạt chuẩn 100%:
   ```bash
   npm run test:hooks
   ```
   *(Kết quả: `Hook test PASS — 11/11`)*
-- [x] Lệnh thẩm định cấu hình đạt chuẩn 100%:
+- [ ] Lệnh thẩm định cấu hình đạt chuẩn 100%:
   ```bash
   npm run validate
   ```
