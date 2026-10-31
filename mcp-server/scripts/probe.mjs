@@ -53,6 +53,11 @@ const client = new Client({ name: 'cca-probe', version: '0.1.0' });
 
 let failures = 0;
 
+client.onerror = (error) => {
+  failures += 1;
+  console.error(`  ✗ Lỗi giao thức JSON-RPC (stdout bị ô nhiễm): ${error.message}`);
+};
+
 try {
   await client.connect(transport);
 
