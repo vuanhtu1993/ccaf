@@ -125,6 +125,22 @@ fi
 rm -rf "$tmpdir"
 
 echo
+echo "== pre-compact.sh =="
+tmpdir="$(mktemp -d)"
+mkdir -p "$tmpdir/docs"
+json='{"hook_event_name":"PreCompact","session_id":"test-compact-999"}'
+printf '%s' "$json" | CLAUDE_PROJECT_DIR="$tmpdir" "$HOOKS/pre-compact.sh" >/dev/null 2>&1; code=$?
+assert_eq "pre-compact exit 0" "0" "$code"
+if grep -q "test-compact-999" "$tmpdir/docs/progress.md" 2>/dev/null; then
+  printf '  \xe2\x9c\x93 ghi nhận thông điệp PreCompact vào docs/progress.md\n'
+  pass=$((pass + 1))
+else
+  printf '  \xe2\x9c\x97 không ghi được PreCompact vào docs/progress.md\n'
+  fail=$((fail + 1))
+fi
+rm -rf "$tmpdir"
+
+echo
 if [ "$fail" -eq 0 ]; then
   echo "Hook test PASS — $pass/$pass."
   exit 0

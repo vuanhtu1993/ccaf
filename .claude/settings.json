@@ -80,6 +80,19 @@
           }
         ]
       }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/pre-compact.sh",
+            "timeout": 10,
+            "statusMessage": "Đang chuẩn bị nén ngữ cảnh..."
+          }
+        ]
+      }
     ]
   }
 }
