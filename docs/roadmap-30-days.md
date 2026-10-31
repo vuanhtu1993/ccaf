@@ -1,4 +1,6 @@
-# Lộ trình 30 ngày
+# Lộ trình 30 ngày (Daily Checklist)
+
+> 💡 **Khuyến nghị**: Để học và hiểu sâu **Bản chất Kiến trúc (Essence-driven)** của từng tầng thay vì chỉ làm theo checklist tác vụ hàng ngày, hãy theo dõi bộ giáo trình chuyên sâu 4 tuần tại [`docs/roadmap/README.md`](roadmap/README.md) ([Tuần 1](roadmap/week-1.md) | [Tuần 2](roadmap/week-2.md) | [Tuần 3](roadmap/week-3.md) | [Tuần 4](roadmap/week-4.md)).
 
 Nguyên tắc: mỗi ngày có **một việc tạo ra file thật**, không chỉ đọc. Cuối mỗi tuần
 phải `npm run check` xanh.

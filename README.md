@@ -142,6 +142,8 @@ nguồn và cái gì không.
 ## Đọc tiếp
 
 1. [`docs/architecture.md`](docs/architecture.md) — lý thuyết 4 tầng
-2. [`docs/cline-vs-claude-code.md`](docs/cline-vs-claude-code.md) — dựng bằng Cline
-3. [`docs/roadmap-30-days.md`](docs/roadmap-30-days.md) — lộ trình
-4. [`docs/sources.md`](docs/sources.md) — nguồn
+2. [`docs/roadmap/README.md`](docs/roadmap/README.md) — lộ trình 4 tuần học theo bản chất kiến trúc
+3. [`docs/evaluation-plan.md`](docs/evaluation-plan.md) — kế hoạch đánh giá dự án & năng lực
+4. [`docs/cline-vs-claude-code.md`](docs/cline-vs-claude-code.md) — dựng bằng Cline
+5. [`docs/roadmap-30-days.md`](docs/roadmap-30-days.md) — checklist 30 ngày
+6. [`docs/sources.md`](docs/sources.md) — nguồn
