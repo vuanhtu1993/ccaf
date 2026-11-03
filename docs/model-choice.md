@@ -73,13 +73,13 @@ mất một tháng.** Với repo này, Sonnet là mặc định đúng.
 ## Cách đổi model (đã hỗ trợ sẵn)
 
 ```bash
-CCA_MODEL=haiku  npm run agent:exam    # thi thử — tiết kiệm
-CCA_MODEL=sonnet npm run agent:study   # buổi học — mặc định
-CCA_MODEL=opus   npm run agent         # câu hỏi kiến trúc khó
+ANTHROPIC_MODEL=haiku  npm run agent:exam    # thi thử — tiết kiệm
+ANTHROPIC_MODEL=sonnet npm run agent:study   # buổi học
+ANTHROPIC_MODEL=opus   npm run agent         # câu hỏi kiến trúc khó
 ```
 
 Biến này đọc trong `buildOptions()`, không cần sửa code. Đã kiểm chứng:
-`CCA_MODEL=haiku` → `model: claude-haiku-5-5`.
+`ANTHROPIC_MODEL=haiku` → `model: claude-haiku-5-5`.
 
 ## Cái bẫy thật sự cần tránh
 
@@ -88,7 +88,7 @@ Nếu bạn định dùng Haiku cho tác vụ có **context lớn** (đọc nhi�
 Vượt ngưỡng là giá nhảy 5x **ngay lập tức**, và vì ngưỡng tính cả cache read,
 một phiên dài có thể vượt ngưỡng mà bạn không nhận ra.
 
-Cách phòng: dùng `CCA_MODEL=haiku` chỉ cho mode `exam` (prompt nhỏ), không dùng cho
+Cách phòng: dùng `ANTHROPIC_MODEL=haiku` chỉ cho mode `exam` (prompt nhỏ), không dùng cho
 `study` (prompt lớn dần theo turn).
 
 ## Tóm lại

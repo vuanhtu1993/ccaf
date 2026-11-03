@@ -4,6 +4,7 @@ description: Reviews changes in this repo against the four-layer Claude architec
 tools: Read, Grep, Glob
 model: inherit
 color: blue
+maxTurns: 5
 ---
 
 You are a read-only architecture reviewer for the CCA-F study repo.

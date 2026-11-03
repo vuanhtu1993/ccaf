@@ -123,7 +123,7 @@ const AGENTS: Record<string, AgentDefinition> = {
     tools: ['Read', 'Grep', 'Glob'],
     // Preload skill để agent có sẵn quy trình, không phải tự khám phá.
     skills: ['daily-study'],
-    maxTurns: 12,
+    maxTurns: 5,
   },
 };
 
@@ -223,7 +223,7 @@ function buildOptions(mode: Mode): Options {
     // Mặc định 'sonnet': hợp với việc suy luận kiến trúc. Dùng 'haiku' khi chỉ
     // cần tra cứu/ôn tập — nhưng đọc docs/pricing trước: Haiku 5.5 có bậc giá
     // tăng 5x khi prompt vượt 100k token.
-    model: process.env['CCA_MODEL'] ?? 'sonnet',
+    model: process.env['ANTHROPIC_MODEL'] ?? process.env['CCA_MODEL'] ?? 'haiku',
     maxTurns: 25,
 
     // Hai loại MCP server trong cùng một phiên: stdio (process riêng)
@@ -374,7 +374,7 @@ async function main(): Promise<void> {
     console.log(`▸ mode: ${mode}`);
     console.log(`▸ repo: ${REPO_ROOT}`);
     console.log(`▸ auth: ${credential}`);
-    console.log(`▸ model: ${process.env['CCA_MODEL'] ?? 'sonnet (mặc định)'}`);
+    console.log(`▸ model: ${process.env['ANTHROPIC_MODEL'] ?? process.env['CCA_MODEL'] ?? 'haiku (mặc định)'}`);
   } else {
     console.error('! Không thấy ANTHROPIC_API_KEY / CLAUDE_CODE_OAUTH_TOKEN trong môi trường.');
     console.error('! Vẫn thử chạy — có thể CLI đã có phiên /login.\n');

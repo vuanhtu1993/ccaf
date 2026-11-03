@@ -1,3 +1,4 @@
+// console.log("=== Debugging MCP Server ===")
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -31,6 +32,7 @@ import {
  * Lưu ý sống còn: KHÔNG được ghi gì ra stdout ngoài JSON-RPC.
  * Mọi log phải đi qua console.error.
  */
+
 
 const SERVER_NAME = 'cca-coach';
 const SERVER_VERSION = '0.1.0';

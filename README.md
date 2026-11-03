@@ -86,9 +86,9 @@ Chỉ ba lệnh `agent*` cần auth. `npm run check` (44 check) chạy offline h
 ### Chọn model
 
 ```bash
-CCA_MODEL=haiku  npm run agent:exam    # tiết kiệm, prompt nhỏ
-CCA_MODEL=sonnet npm run agent:study   # mặc định, hợp suy luận kiến trúc
-CCA_MODEL=opus   npm run agent         # câu hỏi khó
+ANTHROPIC_MODEL=haiku  npm run agent:exam    # tiết kiệm, prompt nhỏ
+ANTHROPIC_MODEL=sonnet npm run agent:study   # hợp suy luận kiến trúc
+ANTHROPIC_MODEL=opus   npm run agent         # câu hỏi khó
 ```
 
 ⚠️ Haiku 5.5 có **bậc giá**: prompt vượt 100k token thì input tăng 5x. Sonnet 5.5
