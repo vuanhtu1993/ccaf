@@ -80,3 +80,43 @@
 - session: `83206def-9b37-4109-8170-279c1a2e2bd0`
 - tóm tắt: Tất cả kiểm thử đều pass, không có lỗi và không có cảnh báo.  | Bước | Kết quả | |---|---| | `probe` (MCP server) | 16/16 pass | | `test:hooks` | 13/13 pass | | `validate` (cấu hình Claude Code) | 21/
 
+## 2026-11-04 08:48
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: **Rules** và **hooks** là hai cơ chế khác nhau:  - **Rule** (`.claude/rules/*.md`) là chỉ dẫn để Claude đọc và tuân theo. Nó nằm trong context. Claude có thể quên hoặc bỏ qua. - **Hook** (`.claude/hoo
+
+## 2026-11-04 08:52
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Không có thứ tự ưu tiên chính thức giữa `CLAUDE.md` và `.claude/rules/`. Cả hai đều được nạp như chỉ dẫn của người dùng, cùng mức trọng lượng. Claude Code không tài liệu hóa một bảng xếp hạng nào giữa
+
+## 2026-11-04 10:33
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Không phải mọi thứ trong repo này đều là agent system. Hai khái niệm này khác nhau ở **ai quyết định bước tiếp theo**.  - **Deterministic workflow (quy trình xác định)**: các bước và thứ tự được lập t
+
+## 2026-11-04 10:37
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Chưa hoàn toàn đúng. File `.md` không định nghĩa workflow hay agent theo nghĩa kỹ thuật. Nó chỉ là chỉ dẫn mà Claude đọc và làm theo. Cách phân biệt hợp lý hơn là **ai giữ quyền điều khiển luồng**:  -
+
+## 2026-11-04 11:02
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Có hai cách chính: chạy Claude Code ở chế độ không tương tác (`claude -p`) trong script, hoặc dùng GitHub Action chính thức `anthropics/claude-code-action`. Cả hai đều cần một lần thiết lập xác thực v
+
+## 2026-11-04 11:05
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Đúng, GitHub Actions runner là tiến trình gọi Claude. Key phải nằm trong **GitHub Secrets** của repo, không nằm trong code.  **Đặt key ở đâu**  1. Vào repo trên GitHub: **Settings → Secrets and variab
+
+## 2026-11-04 11:09
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Tôi đã tạo `.github/workflows/ci.yml`, có hai job. File đã được kiểm tra là YAML hợp lệ. Chưa commit, chưa push và chưa chạy trên GitHub.  **Job `check` (bắt buộc, không cần key)** - Chạy trên mỗi PR 
+
+## 2026-11-04 11:13
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Không bắt buộc phải có `--bare`. Thiếu nó thì không gây lỗi, nhưng có vài hệ quả trong CI.  `--bare` tắt các thứ mà runner không cần: - hook trong settings và plugin - tự động tìm `CLAUDE.md` - auto-m
+

@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Cổng bắt buộc: không cần key, không cần credit.
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cài dependency (mcp-server, agent-sdk)
+        run: |
+          npm --prefix mcp-server ci
+          npm --prefix agent-sdk ci
+      - name: Build
+        run: npm run build
+      - name: Kiểm thử offline
+        run: npm run check
+
+  # Review tùy chọn bằng Claude Code headless (claude -p).
+  # Chỉ chạy cho PR từ chính repo, vì PR từ fork không được nhận secret.
+  claude-review:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # cần lịch sử để diff với base
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cài Claude Code CLI (ghim phiên bản)
+        run: npm install -g @anthropic-ai/claude-code@2.1.317
+      - name: Chạy review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "Thiếu secret ANTHROPIC_API_KEY, bỏ qua review."
+            exit 0
+          fi
+          git fetch origin "$BASE_REF"
+          claude -p "Review thay đổi trong PR này: chạy git diff origin/$BASE_REF...HEAD. Đối chiếu với CLAUDE.md và .claude/rules/. Chỉ báo lỗi có bằng chứng cụ thể (file:line). Không sửa file." \
+            --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*)" \
+            --output-format text
