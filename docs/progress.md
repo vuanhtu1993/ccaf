@@ -120,3 +120,43 @@
 - session: `83206def-9b37-4109-8170-279c1a2e2bd0`
 - tóm tắt: Không bắt buộc phải có `--bare`. Thiếu nó thì không gây lỗi, nhưng có vài hệ quả trong CI.  `--bare` tắt các thứ mà runner không cần: - hook trong settings và plugin - tự động tìm `CLAUDE.md` - auto-m
 
+## 2026-11-04 13:29
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Có, chạy `claude -p` ở local được, và dùng đúng cách như trong CI. Bạn không cần tạo key mới để thử.  **Cách 1: dùng subscription (không cần key)**  Nếu bạn đã `/login` bằng tài khoản Pro, Max, Team h
+
+## 2026-11-04 13:32
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Prompt hiện tại chưa tốt. Nó đủ để thử, nhưng sẽ kém khi PR lớn hoặc có nhiều lỗi.  **Điểm yếu của prompt hiện tại**  - **Không giới hạn số lượng.** Nếu có 50 lỗi, Claude sẽ liệt kê cả 50, log dài, kh
+
+## 2026-11-04 13:40
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Tin nhắn của bạn dừng ở "đánh giá prompt sau:" và chưa có nội dung prompt. Bạn gửi lại prompt cần đánh giá nhé. Tôi sẽ chấm theo các tiêu chí đã dùng cho prompt trong `ci.yml`: giới hạn số lượng, định
+
+## 2026-11-04 13:40
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Prompt này tốt hơn bản trong `ci.yml` ở nhiều điểm, nhất là phần lọc nhiễu và phần chống báo sai. Nhưng khi đưa vào CI của repo này, nó còn thiếu vài thứ.  **Điểm mạnh** - **Phạm vi rõ.** Chỉ báo lỗi 
+
+## 2026-11-04 13:42
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Tôi đã chỉnh `.github/workflows/ci.yml`. YAML và cú pháp shell của bước review đều hợp lệ. Chưa commit, chưa chạy trên GitHub.  **Thay đổi trong bước `Chạy review`**  - **Shell tự lấy diff** vào `revi
+
+## 2026-11-04 14:05
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Tôi đã thêm few-shot vào prompt trong `ci.yml`. YAML và cú pháp shell của bước review đều hợp lệ. Chưa chạy trên GitHub.  **Điều bạn cần biết trước**  Khi đọc lại file, tôi thấy khối `PROMPT=...` và b
+
+## 2026-11-04 14:11
+
+- session: `83206def-9b37-4109-8170-279c1a2e2bd0`
+- tóm tắt: Hôm nay, tốn token nhất là **một session dài trên máy này**, không phải một tác vụ đơn lẻ. Dữ liệu lấy từ transcript cục bộ.  **Tổng hợp hôm nay (session `83206def…`)**  | Chỉ số | Giá trị | |---|---|
+
+## 2026-11-04 14:36
+
+- session: `6a3dfbfa-8caa-4207-82a8-4baa9909c0a1`
+- tóm tắt: **Ngắn gọn: nên giữ cách hiện tại (`--json-schema` của `claude -p`), không đổi sang tool_use.** Bạn vẫn cần ràng buộc đầu ra bằng JSON Schema, nhưng cơ chế nên khớp với việc review cần làm.  **Vì sao 
+
