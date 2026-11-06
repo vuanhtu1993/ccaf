@@ -385,7 +385,10 @@ async function main(): Promise<void> {
   console.log();
 
   try {
-    for await (const message of query({ prompt: promptFor(mode), options: buildOptions(mode) })) {
+    for await (const message of query({
+      prompt: promptFor(mode),
+      options: buildOptions(mode)
+    })) {
       printMessage(message);
     }
   } catch (error: unknown) {
