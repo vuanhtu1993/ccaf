@@ -14,7 +14,10 @@
     "check": "npm run typecheck && npm run probe && npm run test:hooks && npm run validate",
     "agent": "npm --prefix agent-sdk run start",
     "agent:study": "npm --prefix agent-sdk run start:study",
-    "agent:exam": "npm --prefix agent-sdk run start:exam"
+    "agent:exam": "npm --prefix agent-sdk run start:exam",
+    "lab:s1:test": "npm --prefix labs/scenario-1 test",
+    "lab:s1:story": "npm --prefix labs/scenario-1 run story:api",
+    "lab:s1:sdk": "npm --prefix labs/scenario-1 run story:sdk"
   },
   "engines": {
     "node": ">=20"
