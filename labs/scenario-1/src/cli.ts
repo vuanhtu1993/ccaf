@@ -32,12 +32,12 @@ const c = {
   bgDark: '\x1b[48;5;236m',
 };
 
-function printBanner(): void {
+function printBanner(modelName: string): void {
   console.log(`\n${c.cyan}${c.bold}╔══════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
   console.log(`${c.cyan}${c.bold}║       CCAF SCENARIO 1: CUSTOMER SUPPORT RESOLUTION AGENT (CLI REPL)          ║${c.reset}`);
   console.log(`${c.cyan}${c.bold}║       NovaSmart Ecosystem • Powered by Claude Messages API                   ║${c.reset}`);
   console.log(`${c.cyan}${c.bold}╚══════════════════════════════════════════════════════════════════════════════╝${c.reset}`);
-  console.log(`${c.gray}Tác giả: Anh Tú (IT Lecturer) • Gõ ${c.yellow}:help${c.gray} để xem danh sách lệnh tắt mẫu${c.reset}\n`);
+  console.log(`${c.gray}Model active: ${c.bold}${c.green}${modelName}${c.reset}${c.gray} • Gõ ${c.yellow}:help${c.gray} để xem danh sách lệnh tắt mẫu${c.reset}\n`);
 }
 
 function printHelp(): void {
@@ -50,15 +50,16 @@ function printHelp(): void {
   console.log(`  ${c.yellow}:act5b${c.reset}  -> [Act 5B] Đòi gặp quản lý tức thì (Escalate ngay lập tức không điều tra)`);
   console.log(`  ${c.yellow}:facts${c.reset}  -> Xem nội dung khối <case_facts> hiện tại`);
   console.log(`  ${c.yellow}:gate${c.reset}   -> Xem trạng thái của PrerequisiteGate (verified customer, inspection)`);
+  console.log(`  ${c.yellow}:debug${c.reset}  -> Bật/tắt chế độ in log từng vòng lặp while & for trong messages-api.ts`);
   console.log(`  ${c.yellow}:reset${c.reset}  -> Đặt lại phiên hội thoại và khôi phục Mock Database`);
   console.log(`  ${c.yellow}:exit${c.reset}   -> Thoát khỏi CLI (hoặc :quit)\n`);
 }
 
 async function main(): Promise<void> {
-  printBanner();
-
-  let agent = new MessagesApiSupportAgent();
+  let agent = new MessagesApiSupportAgent({ debug: true });
   resetMockDb();
+
+  printBanner(agent.getModel());
 
   const rl = readline.createInterface({ input, output });
 
@@ -82,7 +83,7 @@ async function main(): Promise<void> {
 
       if (trimmed === ':reset') {
         resetMockDb();
-        agent = new MessagesApiSupportAgent();
+        agent = new MessagesApiSupportAgent({ debug: true });
         console.log(`\n${c.green}✓ Đã đặt lại phiên làm việc mới và reset Mock Database.${c.reset}\n`);
         continue;
       }
@@ -99,6 +100,14 @@ async function main(): Promise<void> {
         console.log(`\n${c.yellow}${c.bold}=== PREREQUISITE GATE STATUS (Task 1.4) ===${c.reset}`);
         console.log(`  Verified Customer ID : ${c.cyan}${agent.getGate().getVerifiedCustomerId() ?? 'null (Chưa xác minh)'}${c.reset}`);
         console.log(`  Order ORD-8821 Pass  : ${c.cyan}${agent.getGate().isOrderInspected('ORD-8821') ? 'PASSED' : 'PENDING'}${c.reset}\n`);
+        continue;
+      }
+
+      if (trimmed === ':debug') {
+        agent.setDebug(!agent.isDebug());
+        console.log(
+          `\n${c.magenta}✓ Đã ${agent.isDebug() ? 'BẬT' : 'TẮT'} chế độ Debug Trace vòng lặp trong messages-api.ts.${c.reset}\n`
+        );
         continue;
       }
 
@@ -183,3 +192,4 @@ main().catch((err) => {
   console.error('Fatal CLI Error:', err);
   process.exit(1);
 });
+

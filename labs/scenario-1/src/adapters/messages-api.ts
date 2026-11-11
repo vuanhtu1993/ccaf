@@ -37,7 +37,16 @@ export interface MockContentBlockToolUse {
   input: unknown;
 }
 
-export type MockContentBlock = MockContentBlockText | MockContentBlockToolUse;
+export interface MockContentBlockThinking {
+  type: 'thinking';
+  thinking: string;
+  signature: string;
+}
+
+export type MockContentBlock =
+  | MockContentBlockText
+  | MockContentBlockToolUse
+  | MockContentBlockThinking;
 
 export interface MockMessageScript {
   stop_reason?: Anthropic.Message['stop_reason'];
@@ -87,7 +96,7 @@ export class ScriptedMockAnthropicClient implements AnthropicClientLike {
       type: 'message',
       role: 'assistant',
       content: normalizedContent,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-haiku-5-5',
       stop_reason: nextResponse.stop_reason ?? 'end_turn',
       stop_sequence: null,
       usage: {
@@ -114,6 +123,7 @@ export interface MessagesApiSupportAgentOptions {
   baseSystemPrompt?: string;
   maxAutoRefundAmount?: number;
   maxIterations?: number;
+  debug?: boolean;
 }
 
 export interface AgentTurnResult {
@@ -125,11 +135,42 @@ export interface AgentTurnResult {
   handoffSummary?: HandoffSummary;
 }
 
+/**
+ * Ánh xạ model name từ biến môi trường hoặc alias ngắn (haiku, sonnet, opus, fable)
+ * sang Model ID chuẩn thế hệ 5.5 của Claude Messages API (mặc định: claude-haiku-5-5).
+ */
+export function resolveModelName(rawModel?: string): string {
+  const model = (
+    rawModel ??
+    process.env['ANTHROPIC_MODEL'] ??
+    process.env['CCA_MODEL'] ??
+    'claude-haiku-5-5'
+  ).trim();
+
+  const ALIAS_MAP: Record<string, string> = {
+    haiku: 'claude-haiku-5-5',
+    'haiku-5.5': 'claude-haiku-5-5',
+    'claude-haiku': 'claude-haiku-5-5',
+    sonnet: 'claude-sonnet-5-5',
+    'sonnet-5.5': 'claude-sonnet-5-5',
+    'claude-sonnet': 'claude-sonnet-5-5',
+    opus: 'claude-opus-5-5',
+    'opus-5.5': 'claude-opus-5-5',
+    'claude-opus': 'claude-opus-5-5',
+    fable: 'claude-fable-5-1',
+    'fable-5.1': 'claude-fable-5-1',
+    'claude-fable': 'claude-fable-5-1',
+  };
+
+  return ALIAS_MAP[model.toLowerCase()] ?? model;
+}
+
 export class MessagesApiSupportAgent {
   private readonly client: AnthropicClientLike;
   private readonly model: string;
   private readonly baseSystemPrompt: string;
   private readonly maxIterations: number;
+  private debug: boolean;
 
   private readonly gate: PrerequisiteGate;
   private readonly guard: ComplianceGuard;
@@ -138,16 +179,29 @@ export class MessagesApiSupportAgent {
 
   constructor(options: MessagesApiSupportAgentOptions = {}) {
     this.client = options.client ?? new Anthropic();
-    this.model = options.model ?? 'claude-3-5-sonnet-20241022';
+    this.model = resolveModelName(options.model);
     this.baseSystemPrompt =
       options.baseSystemPrompt ?? buildCustomerSupportSystemPrompt();
     this.maxIterations = options.maxIterations ?? 10; // Secondary safety cap
+    this.debug = options.debug ?? process.env['DEBUG_LOOP'] === '1';
 
     this.gate = new PrerequisiteGate();
     this.guard = new ComplianceGuard({
       maxAutoRefundAmount: options.maxAutoRefundAmount ?? 500,
     });
     this.caseFacts = new CaseFactsManager();
+  }
+
+  public setDebug(enabled: boolean): void {
+    this.debug = enabled;
+  }
+
+  public isDebug(): boolean {
+    return this.debug;
+  }
+
+  public getModel(): string {
+    return this.model;
   }
 
   /**
@@ -181,7 +235,26 @@ export class MessagesApiSupportAgent {
       });
 
       // 3. Nối phản hồi của Assistant vào lịch sử hội thoại
-      this.messages.push({ role: 'assistant', content: response.content });
+      // LƯU Ý KIẾN TRÚC (Claude 5.5 Thinking Block Binding):
+      // Các model Claude 5.5 tự động sinh khối `thinking` có chữ ký mật mã (signature)
+      // gắn chặt (bound) với đúng chuỗi `system` prompt tại thời điểm tạo.
+      // Vì chúng ta cập nhật động khối `<case_facts>` vào `system` prompt sau mỗi lượt tool (Task 5.1),
+      // việc giữ lại `thinking` block cũ trong `this.messages` sẽ gây lỗi 400 Invalid signature.
+      // Do đó, chỉ lưu lại các khối `text` và `tool_use` vào lịch sử hội thoại.
+      const replayableContent = response.content.filter(
+        (b): b is Anthropic.TextBlock | Anthropic.ToolUseBlock =>
+          b.type === 'text' || b.type === 'tool_use'
+      );
+      this.messages.push({ role: 'assistant', content: replayableContent });
+
+      if (this.debug) {
+        const blockSummary = response.content
+          .map((b) => (b.type === 'tool_use' ? `tool_use(${b.name})` : b.type))
+          .join(', ');
+        console.log(
+          `\n  \x1b[35m[DEBUG Loop #${iterations}]\x1b[0m stop_reason = \x1b[33m"${response.stop_reason}"\x1b[0m | content blocks (${response.content.length}): [${blockSummary}]`
+        );
+      }
 
       // 4. Kiểm tra stop_reason (Task 1.1 Core Pattern)
       if (response.stop_reason === 'end_turn') {
@@ -200,6 +273,11 @@ export class MessagesApiSupportAgent {
         for (const block of toolUseBlocks) {
           toolCallsExecuted.push(block.name);
           const toolInput = block.input as Record<string, unknown>;
+          if (this.debug) {
+            console.log(
+              `    \x1b[36m→ [for toolUseBlocks]\x1b[0m id=${block.id} name=\x1b[1m${block.name}\x1b[0m input=${JSON.stringify(toolInput)}`
+            );
+          }
 
           // A. Chốt chặn Prerequisite Gate & Compliance Guard (Task 1.4 & 1.5)
           const gateDecision = this.gate.checkPreToolUse(block.name, toolInput);
@@ -225,18 +303,18 @@ export class MessagesApiSupportAgent {
           // B. Thực thi tool nghiệp vụ (Task 2.1)
           const rawResult = await executeDomainTool(block.name, toolInput);
 
-          // C. Nuôi dưỡng trạng thái cho Gate và trích xuất Case Facts (Task 1.4 & 5.1)
-          this.gate.recordToolResult(block.name, rawResult);
-          this.caseFacts.ingestToolResult(block.name, rawResult);
+          // C. PostToolUse Trimmer & Normalizer (Task 1.5 & 5.1)
+          const trimmedResult = normalizeAndTrimToolResult(block.name, rawResult);
 
-          // D. Nhận diện kích hoạt Escalation (Task 5.2)
+          // D. Nuôi dưỡng trạng thái cho Gate và trích xuất Case Facts từ kết quả đã chuẩn hóa (Task 1.4 & 5.1)
+          this.gate.recordToolResult(block.name, rawResult);
+          this.caseFacts.ingestToolResult(block.name, trimmedResult);
+
+          // E. Nhận diện kích hoạt Escalation (Task 5.2)
           if (block.name === 'escalate_to_human' && !rawResult.isError) {
             escalated = true;
             handoffSummary = rawResult.data as HandoffSummary;
           }
-
-          // E. PostToolUse Trimmer & Normalizer (Task 1.5 & 5.1)
-          const trimmedResult = normalizeAndTrimToolResult(block.name, rawResult);
 
           toolResultBlocks.push({
             type: 'tool_result',
@@ -248,6 +326,11 @@ export class MessagesApiSupportAgent {
         }
 
         // F. GOM TẤT CẢ KẾT QUẢ TOOL VÀO 1 USER MESSAGE DUY NHẤT (Task 1.1 L234-250)
+        if (this.debug) {
+          console.log(
+            `    \x1b[32m✓ [Batch Tool Results]\x1b[0m Đóng gói ${toolResultBlocks.length} tool_result block(s) vào 1 user message để gửi lên vòng while kế tiếp.`
+          );
+        }
         this.messages.push({
           role: 'user',
           content: toolResultBlocks,

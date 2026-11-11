@@ -94,6 +94,22 @@ export class PrerequisiteGate {
         };
       }
     }
+    if (toolName === "lookup_order") {
+      // 1. Kiểm tra định danh khách hàng (Task 1.4 L356)
+      if (!this.verifiedCustomerId) {
+        return {
+          allowed: false,
+          errorResult: {
+            isError: true,
+            errorCategory: 'business',
+            isRetryable: false,
+            message:
+              'Cannot process refund: A verified customer ID is required. Customer identity has not been verified. You must call get_customer with an unambiguous identifier (such as phone number) first.',
+            suggestedAction: 'clarify_with_user',
+          },
+        };
+      }
+    }
 
     return { allowed: true };
   }

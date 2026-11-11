@@ -7,6 +7,7 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "cli": "tsx --env-file=../../.env src/cli.ts",
     "story:api": "tsx run-story.ts --adapter=api",
     "story:sdk": "tsx run-story.ts --adapter=sdk"
   },

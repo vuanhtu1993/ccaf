@@ -175,5 +175,46 @@ describe('Part A — Messages API Agentic Loop & All 3 Escalation Triggers (Task
     expect(turn.escalated).toBe(true);
     expect(turn.handoffSummary?.trigger_reason).toBe('customer_requested_human');
   });
+
+  it('Act 2 / Claude 5.5 Regression: should strip thinking blocks from assistant message history when case_facts mutates system prompt', async () => {
+    const mockClient = new ScriptedMockAnthropicClient([
+      {
+        stop_reason: 'tool_use',
+        content: [
+          {
+            type: 'thinking',
+            thinking: 'Cần xác minh khách hàng Alex Trần và đơn ORD-8821.',
+            signature: 'sig_bound_to_initial_system_prompt',
+          },
+          { type: 'tool_use', id: 'tu_cust', name: 'get_customer', input: { phone: '0901234567' } },
+          { type: 'tool_use', id: 'tu_ord', name: 'lookup_order', input: { order_id: 'ORD-8821' } },
+        ],
+      },
+      {
+        stop_reason: 'end_turn',
+        content: [
+          {
+            type: 'thinking',
+            thinking: 'Đã có kết quả tra cứu đơn hàng.',
+            signature: 'sig_bound_to_updated_system_prompt',
+          },
+          { type: 'text', text: 'Đơn hàng ORD-8821 của anh Alex Trần đã giao thành công (DELIVERED).' },
+        ],
+      },
+    ]);
+
+    const agent = new MessagesApiSupportAgent({ client: mockClient });
+    const turn = await agent.runTurn('Tôi là Alex Trần, SĐT 0901234567, kiểm tra đơn hàng ORD-8821 giúp tôi.');
+
+    expect(turn.iterations).toBe(2);
+    expect(agent.getCaseFacts().getFact('order_status')).toBe('DELIVERED');
+
+    // Đảm bảo không còn khối thinking nào nằm trong lịch sử hội thoại gửi lại lên API
+    const assistantMsg1 = agent.getMessagesHistory()[1];
+    expect(Array.isArray(assistantMsg1.content)).toBe(true);
+    const blockTypes = (assistantMsg1.content as Array<{ type: string }>).map((b) => b.type);
+    expect(blockTypes).not.toContain('thinking');
+    expect(blockTypes).toEqual(['tool_use', 'tool_use']);
+  });
 });
 

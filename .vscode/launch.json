@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Scenario 1: CLI (Live Claude API)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/labs/scenario-1",
+      "runtimeExecutable": "${workspaceFolder}/labs/scenario-1/node_modules/.bin/tsx",
+      "runtimeArgs": ["--env-file=../../.env"],
+      "program": "${workspaceFolder}/labs/scenario-1/src/cli.ts",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "Debug Scenario 1: Act 1-5 Loop Tests (Offline)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/labs/scenario-1",
+      "runtimeExecutable": "${workspaceFolder}/labs/scenario-1/node_modules/.bin/vitest",
+      "args": ["run", "__tests__/act-5-compliance-escalation.test.ts", "--no-file-parallelism"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    }
+  ]
+}
+
