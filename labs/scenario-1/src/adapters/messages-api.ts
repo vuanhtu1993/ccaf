@@ -22,6 +22,7 @@ import { ComplianceGuard } from '../domain/compliance-guard.js';
 import { normalizeAndTrimToolResult } from '../domain/context-trimmer.js';
 import { CaseFactsManager } from '../domain/case-facts.js';
 import { buildCustomerSupportSystemPrompt } from '../domain/system-prompt.js';
+import { SessionInspector } from '../domain/session-inspector.js';
 import type { HandoffSummary } from '../domain/types.js';
 
 export interface MockContentBlockText {
@@ -177,6 +178,10 @@ export class MessagesApiSupportAgent {
   private readonly caseFacts: CaseFactsManager;
   private messages: Anthropic.MessageParam[] = [];
 
+  private sessionToolsExecuted: string[] = [];
+  private sessionBlockedTools: string[] = [];
+  private lastHandoffSummary?: HandoffSummary;
+
   constructor(options: MessagesApiSupportAgentOptions = {}) {
     this.client = options.client ?? new Anthropic();
     this.model = resolveModelName(options.model);
@@ -202,6 +207,10 @@ export class MessagesApiSupportAgent {
 
   public getModel(): string {
     return this.model;
+  }
+
+  public getAdapterName(): string {
+    return 'Claude Messages API (Part A - Manual While Loop)';
   }
 
   /**
@@ -291,6 +300,7 @@ export class MessagesApiSupportAgent {
 
           if (failedDecision && failedDecision.errorResult) {
             blockedToolCalls.push(block.name);
+            this.sessionBlockedTools.push(block.name);
             toolResultBlocks.push({
               type: 'tool_result',
               tool_use_id: block.id,
@@ -302,11 +312,12 @@ export class MessagesApiSupportAgent {
 
           // B. Thực thi tool nghiệp vụ (Task 2.1)
           const rawResult = await executeDomainTool(block.name, toolInput);
+          this.sessionToolsExecuted.push(block.name);
 
           // C. PostToolUse Trimmer & Normalizer (Task 1.5 & 5.1)
           const trimmedResult = normalizeAndTrimToolResult(block.name, rawResult);
 
-          // D. Nuôi dưỡng trạng thái cho Gate và trích xuất Case Facts từ kết quả đã chuẩn hóa (Task 1.4 & 5.1)
+          // D. Nuôi dưỡng trạng thái cho Gate và trích xuất Case Facts (Task 1.4 & 5.1)
           this.gate.recordToolResult(block.name, rawResult);
           this.caseFacts.ingestToolResult(block.name, trimmedResult);
 
@@ -314,6 +325,7 @@ export class MessagesApiSupportAgent {
           if (block.name === 'escalate_to_human' && !rawResult.isError) {
             escalated = true;
             handoffSummary = rawResult.data as HandoffSummary;
+            this.lastHandoffSummary = handoffSummary;
           }
 
           toolResultBlocks.push({
@@ -377,5 +389,26 @@ export class MessagesApiSupportAgent {
 
   public getCaseFacts(): CaseFactsManager {
     return this.caseFacts;
+  }
+
+  public getInspector(): SessionInspector {
+    return new SessionInspector({
+      messages: this.messages,
+      gate: this.gate,
+      guard: this.guard,
+      caseFacts: this.caseFacts,
+      toolsExecuted: this.sessionToolsExecuted,
+      blockedTools: this.sessionBlockedTools,
+      handoffSummary: this.lastHandoffSummary,
+    });
+  }
+
+  public reset(): void {
+    this.gate.reset();
+    this.caseFacts.reset();
+    this.messages = [];
+    this.sessionToolsExecuted = [];
+    this.sessionBlockedTools = [];
+    this.lastHandoffSummary = undefined;
   }
 }

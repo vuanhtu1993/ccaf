@@ -17,6 +17,7 @@
     "agent:exam": "npm --prefix agent-sdk run start:exam",
     "lab:s1:test": "npm --prefix labs/scenario-1 test",
     "lab:s1:cli": "npm --prefix labs/scenario-1 run cli",
+    "lab:s1:cli:sdk": "npm --prefix labs/scenario-1 run cli:sdk",
     "lab:s1:story": "npm --prefix labs/scenario-1 run story:api",
     "lab:s1:sdk": "npm --prefix labs/scenario-1 run story:sdk"
   },
